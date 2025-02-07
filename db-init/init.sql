@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS "SensorData" (
+    "Id" SERIAL PRIMARY KEY,
+    "SensorId" INT NOT NULL,
+    "Timestamp" TIMESTAMP NOT NULL,
+    "Value" FLOAT NOT NULL
+)

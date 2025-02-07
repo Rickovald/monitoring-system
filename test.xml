@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sensors>
+  <sensor>
+    <id>1</id>
+    <value>23.4</value>
+    <timestamp>2023-05-01T12:00:00Z</timestamp>
+  </sensor>
+  <sensor>
+    <id>2</id>
+    <value>12.5</value>
+    <timestamp>2023-05-01T12:10:00Z</timestamp>
+  </sensor>
+  <sensor>
+    <id>3</id>
+    <value>17.8</value>
+    <timestamp>2023-05-01T12:20:00Z</timestamp>
+  </sensor>
+  <sensor>
+    <id>4</id>
+    <value>30.2</value>
+    <timestamp>2023-06-15T08:00:00Z</timestamp>
+  </sensor>
+  <sensor>
+    <id>5</id>
+    <value>27.1</value>
+    <timestamp>2023-07-30T18:00:00Z</timestamp>
+  </sensor>
+  <sensor>
+    <id>6</id>
+    <value>16.4</value>
+    <timestamp>2023-09-10T09:30:00Z</timestamp>
+  </sensor>
+</sensors>

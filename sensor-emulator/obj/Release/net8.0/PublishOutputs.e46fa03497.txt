@@ -1,0 +1,11 @@
+D:\Work\monitoring-system\sensor-emulator\publish\sensor-emulator.exe
+D:\Work\monitoring-system\sensor-emulator\publish\sensor-emulator.dll
+D:\Work\monitoring-system\sensor-emulator\publish\sensor-emulator.deps.json
+D:\Work\monitoring-system\sensor-emulator\publish\sensor-emulator.runtimeconfig.json
+D:\Work\monitoring-system\sensor-emulator\publish\sensor-emulator.pdb
+D:\Work\monitoring-system\sensor-emulator\publish\RestSharp.dll
+D:\Work\monitoring-system\sensor-emulator\publish\System.IO.Pipelines.dll
+D:\Work\monitoring-system\sensor-emulator\publish\System.Net.Http.Json.dll
+D:\Work\monitoring-system\sensor-emulator\publish\System.Text.Encodings.Web.dll
+D:\Work\monitoring-system\sensor-emulator\publish\System.Text.Json.dll
+D:\Work\monitoring-system\sensor-emulator\publish\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll

@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "7hPoL4G5qBdcFMbG1RgJuQ4NUq2BqfYI+ysVh8SK4HRDk90gyt84agRD5SGem7VGkclMmgyJLi5lEqoNPq0u9A==",
+  "success": true,
+  "projectFilePath": "D:\\Work\\monitoring-system\\sensor-emulator\\sensor-emulator.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Professional\\.nuget\\packages\\restsharp\\112.1.0\\restsharp.112.1.0.nupkg.sha512",
+    "C:\\Users\\Professional\\.nuget\\packages\\system.io.pipelines\\9.0.1\\system.io.pipelines.9.0.1.nupkg.sha512",
+    "C:\\Users\\Professional\\.nuget\\packages\\system.net.http.json\\9.0.1\\system.net.http.json.9.0.1.nupkg.sha512",
+    "C:\\Users\\Professional\\.nuget\\packages\\system.text.encodings.web\\9.0.1\\system.text.encodings.web.9.0.1.nupkg.sha512",
+    "C:\\Users\\Professional\\.nuget\\packages\\system.text.json\\9.0.1\\system.text.json.9.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}

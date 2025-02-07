@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!-- Корневой элемент sensors, содержащий один или более элементов sensor -->
+    <xs:element name="sensors">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="sensor" minOccurs="1" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <!-- Идентификатор датчика -->
+                            <xs:element name="id" type="xs:integer" />
+                            <!-- Значение датчика -->
+                            <xs:element name="value" type="xs:decimal" />
+                            <!-- Временная метка в формате dateTime -->
+                            <xs:element name="timestamp" type="xs:dateTime" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
