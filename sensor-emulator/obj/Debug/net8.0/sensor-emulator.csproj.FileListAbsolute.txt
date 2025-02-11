@@ -20,3 +20,4 @@ D:\Work\monitoring-system\sensor-emulator\obj\Debug\net8.0\refint\sensor-emulato
 D:\Work\monitoring-system\sensor-emulator\obj\Debug\net8.0\sensor-emulator.pdb
 D:\Work\monitoring-system\sensor-emulator\obj\Debug\net8.0\sensor-emulator.genruntimeconfig.cache
 D:\Work\monitoring-system\sensor-emulator\obj\Debug\net8.0\ref\sensor-emulator.dll
+D:\Work\monitoring-system\sensor-emulator\obj\Debug\net8.0\sensor-emulator.sourcelink.json

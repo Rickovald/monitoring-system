@@ -19,7 +19,7 @@ namespace backend.Controllers
 
         public UploadXmlController(AppDbContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             _xmlValidator = new XmlValidator();
         }
 
@@ -29,88 +29,110 @@ namespace backend.Controllers
         /// <param name="file">Загружаемый XML-файл.</param>
         /// <returns>Статус операции.</returns>
         [HttpPost]
-        public async Task<IActionResult> UploadXml(IFormFile file)
+        public async Task<IActionResult> UploadXml([FromForm] IFormFile file)
         {
+            // Проверка, что файл был загружен
             if (file == null || file.Length == 0)
-                return BadRequest("Файл не выбран");
+            {
+                return BadRequest(new { error = "Файл не выбран" });
+            }
 
-            // Путь к XSD схеме. Файл schema.xsd должен находиться в выходной директории.
+            // Определение пути к XSD-схеме
             var xsdPath = Path.Combine(AppContext.BaseDirectory, "schema.xsd");
+            if (!System.IO.File.Exists(xsdPath))
+            {
+                return StatusCode(500, new { error = "XSD-схема не найдена", details = $"Путь: {xsdPath}" });
+            }
 
-            // Считываем содержимое файла в MemoryStream,
-            // чтобы можно было использовать один и тот же поток для валидации и парсинга.
-            MemoryStream memoryStream = new MemoryStream();
-            await file.CopyToAsync(memoryStream);
-
-            // Валидация XML по XSD
-            memoryStream.Position = 0;
-            string errors = await Task.Run(() => _xmlValidator.ValidateXml(memoryStream, xsdPath));
-            if (!string.IsNullOrEmpty(errors))
-                return BadRequest($"Ошибка валидации: {errors}");
-
-            // Сброс позиции потока для повторного чтения XML
-            memoryStream.Position = 0;
-
-            // Парсинг XML с использованием XDocument
-            XDocument xmlDoc;
             try
             {
-                xmlDoc = XDocument.Load(memoryStream);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Ошибка парсинга XML: {ex.Message}");
-            }
+                // Считываем содержимое файла в MemoryStream
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
 
-            // Ожидается, что корневой элемент называется "sensors" и содержит элементы "sensor"
-            var sensorElements = xmlDoc.Root?.Elements("sensor");
-            if (sensorElements == null)
-                return BadRequest("Некорректная структура XML: отсутствуют элементы sensor");
+                // Валидация XML по XSD
+                memoryStream.Position = 0;
+                string validationErrors = await Task.Run(() => _xmlValidator.ValidateXml(memoryStream, xsdPath));
+                if (!string.IsNullOrEmpty(validationErrors))
+                {
+                    return BadRequest(new { error = "Ошибка валидации XML", details = validationErrors });
+                }
 
-            // Создаем список для накопления данных датчиков
-            List<SensorData> sensorDataList = new List<SensorData>();
-
-            foreach (var sensorElem in sensorElements)
-            {
+                // Парсинг XML
+                memoryStream.Position = 0;
+                XDocument xmlDoc;
                 try
                 {
-                    int sensorId = int.Parse(
-                        sensorElem.Element("id")?.Value
-                            ?? throw new Exception("Отсутствует элемент id")
-                    );
-                    double value = double.Parse(
-                        sensorElem.Element("value")?.Value
-                            ?? throw new Exception("Отсутствует элемент value"),
-                        CultureInfo.InvariantCulture
-                    );
-                    DateTime timestamp = DateTime.Parse(
-                        sensorElem.Element("timestamp")?.Value
-                            ?? throw new Exception("Отсутствует элемент timestamp"),
-                        CultureInfo.InvariantCulture,
-                        System.Globalization.DateTimeStyles.AdjustToUniversal
-                            | System.Globalization.DateTimeStyles.AssumeUniversal
-                    );
-
-                    SensorData sensorData = new SensorData
-                    {
-                        SensorId = sensorId,
-                        Value = value,
-                        Timestamp = timestamp,
-                    };
-
-                    sensorDataList.Add(sensorData);
+                    xmlDoc = XDocument.Load(memoryStream);
                 }
                 catch (Exception ex)
                 {
-                    return BadRequest($"Ошибка при обработке элемента sensor: {ex.Message}");
+                    return BadRequest(new { error = "Ошибка парсинга XML", details = ex.Message });
                 }
+
+                // Обработка элементов XML
+                var sensorElements = xmlDoc.Root?.Elements("sensor");
+                if (sensorElements == null || !sensorElements.Any())
+                {
+                    return BadRequest(new { error = "Некорректная структура XML", details = "Отсутствуют элементы sensor" });
+                }
+
+                var sensorDataList = new List<SensorData>();
+                foreach (var sensorElem in sensorElements)
+                {
+                    try
+                    {
+                        int sensorId = ParseElement<int>(sensorElem, "id", int.Parse);
+                        double value = ParseElement<double>(sensorElem, "value", s => double.Parse(s, CultureInfo.InvariantCulture));
+                        DateTime timestamp = ParseElement<DateTime>(
+                            sensorElem,
+                            "timestamp",
+                            s => DateTime.Parse(s, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal)
+                        );
+
+                        sensorDataList.Add(new SensorData
+                        {
+                            SensorId = sensorId,
+                            Value = value,
+                            Timestamp = timestamp
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest(new { error = "Ошибка при обработке элемента sensor", details = ex.Message });
+                    }
+                }
+
+                // Сохранение данных в базу
+                await _context.SensorData.AddRangeAsync(sensorDataList);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "XML успешно загружен, валидирован и данные сохранены в базу" });
+            }
+            catch (Exception ex)
+            {
+                // Обработка общих ошибок
+                return StatusCode(500, new { error = "Необработанная ошибка", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Универсальный метод для парсинга элементов XML.
+        /// </summary>
+        /// <typeparam name="T">Тип данных для парсинга.</typeparam>
+        /// <param name="element">Элемент XML.</param>
+        /// <param name="elementName">Имя элемента.</param>
+        /// <param name="parser">Функция парсинга.</param>
+        /// <returns>Распарсенное значение.</returns>
+        private T ParseElement<T>(XElement element, string elementName, Func<string, T> parser)
+        {
+            var value = element.Element(elementName)?.Value;
+            if (string.IsNullOrEmpty(value))
+            {
+                throw new Exception($"Отсутствует или пустой элемент: {elementName}");
             }
 
-            // Сохраняем все данные в базу
-            await _context.SensorData.AddRangeAsync(sensorDataList);
-            await _context.SaveChangesAsync();
-
-            return Ok("XML успешно загружен, валидирован и данные сохранены в базу");
+            return parser(value);
         }
     }
 }

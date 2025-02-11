@@ -2,6 +2,7 @@ using backend.Data;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace backend.Controllers
 {
@@ -16,7 +17,7 @@ namespace backend.Controllers
 
         public SensorsController(AppDbContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         /// <summary>
@@ -24,22 +25,47 @@ namespace backend.Controllers
         /// </summary>
         /// <param name="from">Начало периода (UTC).</param>
         /// <param name="to">Конец периода (UTC).</param>
+        /// <returns>HTTP-ответ с агрегированными данными или сообщением об ошибке.</returns>
         [HttpGet("summary")]
-        public async Task<IActionResult> GetSummary([FromQuery] DateTime from, [FromQuery] DateTime to)
+        public async Task<IActionResult> GetSummary(
+            [FromQuery, Required(ErrorMessage = "Параметр 'from' обязателен")] DateTime from,
+            [FromQuery, Required(ErrorMessage = "Параметр 'to' обязателен")] DateTime to)
         {
-            var summaries = await _context.SensorData
-                .Where(d => d.Timestamp >= from && d.Timestamp <= to)
-                .GroupBy(d => d.SensorId)
-                .Select(g => new SensorSummaryDto
-                {
-                    SensorId = g.Key,
-                    Average = g.Average(d => d.Value),
-                    Maximum = g.Max(d => d.Value),
-                    Minimum = g.Min(d => d.Value)
-                })
-                .ToListAsync();
+            // Проверка корректности временного диапазона
+            if (from > to)
+            {
+                return BadRequest(new { error = "Неверный временной диапазон", details = "'from' не может быть больше 'to'." });
+            }
 
-            return Ok(summaries);
+            try
+            {
+                // Получение агрегированных данных из базы
+                var summaries = await _context.SensorData
+                    .Where(d => d.Timestamp >= from && d.Timestamp <= to)
+                    .GroupBy(d => d.SensorId)
+                    .Select(g => new SensorSummaryDto
+                    {
+                        SensorId = g.Key,
+                        Average = g.Average(d => d.Value),
+                        Maximum = g.Max(d => d.Value),
+                        Minimum = g.Min(d => d.Value)
+                    })
+                    .ToListAsync();
+
+                // Если данных нет, возвращаем пустой список
+                if (!summaries.Any())
+                {
+                    return Ok(new List<SensorSummaryDto>());
+                }
+
+                // Возвращаем результат с HTTP 200 OK
+                return Ok(summaries);
+            }
+            catch (Exception ex)
+            {
+                // Обработка общих ошибок
+                return StatusCode(500, new { error = "Ошибка при получении агрегированных данных", details = ex.Message });
+            }
         }
     }
 }

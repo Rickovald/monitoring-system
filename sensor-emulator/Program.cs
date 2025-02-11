@@ -1,6 +1,4 @@
 ﻿using RestSharp;
-using System;
-using System.Threading.Tasks;
 
 class Program
 {
@@ -16,7 +14,7 @@ class Program
             {
                 var value = new Random().NextDouble() * 100;
                 var request = new RestRequest("/api/data", Method.Post);
-                
+
                 request.AddJsonBody(new { SensorId = sensor, Value = value, Timestamp = DateTime.UtcNow });
 
                 var response = await client.ExecuteAsync(request);
