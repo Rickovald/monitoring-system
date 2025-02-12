@@ -12,6 +12,7 @@ const UploadPage: React.FC = () => {
     }
   };
 
+
   const handleUpload = () => {
     if (!file) return;
     uploadXml(file)
@@ -21,12 +22,12 @@ const UploadPage: React.FC = () => {
 
   return (
     <div>
-      <Typography variant="h4">Загрузка XML</Typography>
+      <Typography variant="h4" style={{ color: 'black' }}>Загрузка XML</Typography>
       <input type="file" accept=".xml" onChange={handleFileChange} />
       <Button variant="contained" onClick={handleUpload} style={{ marginLeft: '10px' }}>
         Загрузить
       </Button>
-      {message && <Typography variant="body1" style={{ marginTop: '20px' }}>{message}</Typography>}
+      {message && <Typography variant="body1" style={{ marginTop: '20px', color: 'green' }}>{message}</Typography>}
     </div>
   );
 };
