@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { TextField, Button } from '@mui/material';
 import DataChart from '../../shared/DataChart';
 import DataTable from '../../shared/DataTable';
-import { fetchSensorData, fetchSensorSummary, SensorData, SensorSummary } from '../../shared/api';
+import { SensorData, SensorSummary } from '../../entities/SensorData/sensorData';
+import { fetchSensorData, fetchSensorSummary } from '../../entities/SensorData/model/loadSensorData';
 
 const DataPage: React.FC = () => {
   const [data, setData] = useState<SensorData[]>([]);

@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { Container, AppBar, Toolbar, Button } from '@mui/material';
-import DataPage from '../features/Data/DataPage';
-import UploadPage from '../features/Upload/UploadPage';
+import DataPage from '../widgets/Data/DataTab';
+import UploadPage from '../widgets/Upload/UploadTab';
 
 const App: React.FC = () => {
   return (

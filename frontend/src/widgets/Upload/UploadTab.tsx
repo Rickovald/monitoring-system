@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Typography } from '@mui/material';
-import { uploadXml } from '../../shared/api';
+import { uploadXml } from '../../entities/SensorData/model/uploadXmlData';
 
 const UploadPage: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
